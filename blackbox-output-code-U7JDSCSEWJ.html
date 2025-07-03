@@ -1,0 +1,494 @@
+<html lang="fr">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   AnimeStream - Admin avec Authentification
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet"/>
+  <style>
+   body {
+      font-family: 'Roboto', sans-serif;
+    }
+  </style>
+ </head>
+ <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+  <header class="bg-gray-800 shadow-md">
+   <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+    <a class="text-2xl font-bold text-indigo-500 flex items-center" href="#">
+     <i class="fas fa-dragon mr-2"></i>
+     AnimeStream
+    </a>
+    <nav class="hidden md:flex space-x-6 text-gray-300" id="nav-public">
+     <a class="hover:text-indigo-400 transition" href="#" data-view="public">Accueil</a>
+     <a class="hover:text-indigo-400 transition" href="#" data-view="public">Anime VO</a>
+     <a class="hover:text-indigo-400 transition" href="#" data-view="public">Anime VF</a>
+     <a class="hover:text-indigo-400 transition" href="#" data-view="public">Genres</a>
+     <a class="hover:text-indigo-400 transition" href="#" data-view="public">Top Animes</a>
+     <a class="hover:text-indigo-400 transition" href="#" id="btn-switch-to-login">Espace Admin</a>
+    </nav>
+    <nav class="hidden md:flex space-x-6 text-gray-300" id="nav-admin">
+     <a class="hover:text-indigo-400 transition" href="#" data-view="admin">Dashboard</a>
+     <a class="hover:text-indigo-400 transition" href="#" data-view="admin">Gérer Animes</a>
+     <a class="hover:text-indigo-400 transition" href="#" data-view="admin">Upload Vidéo</a>
+     <a class="hover:text-indigo-400 transition" href="#" data-view="admin">Traduction AI</a>
+     <a class="hover:text-indigo-400 transition cursor-pointer" id="btn-logout">Déconnexion</a>
+    </nav>
+    <button class="md:hidden text-gray-300 focus:outline-none" id="mobile-menu-button">
+     <i class="fas fa-bars fa-lg"></i>
+    </button>
+   </div>
+   <nav class="hidden bg-gray-700 px-4 py-3 space-y-2 md:hidden" id="mobile-menu">
+    <div id="mobile-menu-public" class="space-y-2">
+     <a class="block text-gray-300 hover:text-indigo-400 transition" href="#" data-view="public">Accueil</a>
+     <a class="block text-gray-300 hover:text-indigo-400 transition" href="#" data-view="public">Anime VO</a>
+     <a class="block text-gray-300 hover:text-indigo-400 transition" href="#" data-view="public">Anime VF</a>
+     <a class="block text-gray-300 hover:text-indigo-400 transition" href="#" data-view="public">Genres</a>
+     <a class="block text-gray-300 hover:text-indigo-400 transition" href="#" data-view="public">Top Animes</a>
+     <a class="block text-gray-300 hover:text-indigo-400 transition cursor-pointer" id="btn-mobile-switch-to-login">Espace Admin</a>
+    </div>
+    <div id="mobile-menu-admin" class="space-y-2 hidden">
+     <a class="block text-gray-300 hover:text-indigo-400 transition" href="#" data-view="admin">Dashboard</a>
+     <a class="block text-gray-300 hover:text-indigo-400 transition" href="#" data-view="admin">Gérer Animes</a>
+     <a class="block text-gray-300 hover:text-indigo-400 transition" href="#" data-view="admin">Upload Vidéo</a>
+     <a class="block text-gray-300 hover:text-indigo-400 transition" href="#" data-view="admin">Traduction AI</a>
+     <a class="block text-gray-300 hover:text-indigo-400 transition cursor-pointer" id="btn-mobile-logout">Déconnexion</a>
+    </div>
+   </nav>
+  </header>
+  <main class="flex-grow container mx-auto px-4 py-8">
+   <!-- LOGIN VIEW -->
+   <section id="view-login" class="max-w-md mx-auto bg-gray-800 p-8 rounded-lg shadow-lg hidden">
+    <h1 class="text-3xl font-extrabold mb-6 text-center text-indigo-400">Connexion Administrateur</h1>
+    <form id="loginForm" class="space-y-6" autocomplete="off">
+     <div>
+      <label class="block mb-2 font-semibold" for="adminPassword">Mot de passe</label>
+      <input class="w-full rounded-md bg-gray-700 border border-gray-600 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="adminPassword" name="adminPassword" placeholder="Entrez le mot de passe" required="" type="password" autocomplete="new-password"/>
+     </div>
+     <div>
+      <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-md transition" type="submit">Se connecter</button>
+     </div>
+     <div class="text-red-500 font-semibold text-center hidden" id="loginError">Mot de passe incorrect.</div>
+    </form>
+   </section>
+   <!-- PUBLIC VIEW -->
+   <section id="view-public">
+    <h1 class="text-4xl font-extrabold mb-8 text-center text-indigo-400">Regardez vos Animes en VO et VF</h1>
+    <section class="mb-12">
+     <h2 class="text-2xl font-bold mb-6 border-b border-indigo-600 pb-2">Animes en Version Originale (VO)</h2>
+     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <article class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-indigo-500 transition">
+       <img alt="Poster of Naruto Shippuden anime in original Japanese version with ninja characters in action" class="w-full h-48 object-cover" height="225" src="https://storage.googleapis.com/a1aa/image/2d36435a-efa1-4d09-47cd-a83451631026.jpg" width="400"/>
+       <div class="p-4">
+        <h3 class="text-lg font-semibold mb-1">Naruto Shippuden</h3>
+        <p class="text-gray-400 text-sm mb-2">Action, Adventure, Ninja</p>
+        <a class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm" href="#">Regarder VO</a>
+       </div>
+      </article>
+      <article class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-indigo-500 transition">
+       <img alt="Poster of Attack on Titan anime in original Japanese version with giant humanoid titans attacking city" class="w-full h-48 object-cover" height="225" src="https://storage.googleapis.com/a1aa/image/12fc39e6-5515-4a74-5ecd-c7182253d658.jpg" width="400"/>
+       <div class="p-4">
+        <h3 class="text-lg font-semibold mb-1">Attack on Titan</h3>
+        <p class="text-gray-400 text-sm mb-2">Action, Drama, Fantasy</p>
+        <a class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm" href="#">Regarder VO</a>
+       </div>
+      </article>
+      <article class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-indigo-500 transition">
+       <img alt="Poster of One Piece anime in original Japanese version with pirate crew sailing on ship" class="w-full h-48 object-cover" height="225" src="https://storage.googleapis.com/a1aa/image/8f5266cf-fba8-4f71-08f0-5ccaf86008f7.jpg" width="400"/>
+       <div class="p-4">
+        <h3 class="text-lg font-semibold mb-1">One Piece</h3>
+        <p class="text-gray-400 text-sm mb-2">Adventure, Comedy, Fantasy</p>
+        <a class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm" href="#">Regarder VO</a>
+       </div>
+      </article>
+      <article class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-indigo-500 transition">
+       <img alt="Poster of My Hero Academia anime in original Japanese version with superheroes in action poses" class="w-full h-48 object-cover" height="225" src="https://storage.googleapis.com/a1aa/image/1d3a9e79-b310-4a15-5c35-9237aacd76e5.jpg" width="400"/>
+       <div class="p-4">
+        <h3 class="text-lg font-semibold mb-1">My Hero Academia</h3>
+        <p class="text-gray-400 text-sm mb-2">Action, Superhero, School</p>
+        <a class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm" href="#">Regarder VO</a>
+       </div>
+      </article>
+     </div>
+    </section>
+    <section>
+     <h2 class="text-2xl font-bold mb-6 border-b border-indigo-600 pb-2">Animes en Version Française (VF)</h2>
+     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <article class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-indigo-500 transition">
+       <img alt="Poster of Naruto Shippuden anime dubbed in French with ninja characters in action" class="w-full h-48 object-cover" height="225" src="https://storage.googleapis.com/a1aa/image/c20fa814-d9b1-4ecb-6b2d-c079b6b201e1.jpg" width="400"/>
+       <div class="p-4">
+        <h3 class="text-lg font-semibold mb-1">Naruto Shippuden</h3>
+        <p class="text-gray-400 text-sm mb-2">Action, Adventure, Ninja</p>
+        <a class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm" href="#">Regarder VF</a>
+       </div>
+      </article>
+      <article class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-indigo-500 transition">
+       <img alt="Poster of Attack on Titan anime dubbed in French with giant humanoid titans attacking city" class="w-full h-48 object-cover" height="225" src="https://storage.googleapis.com/a1aa/image/ad376d93-7655-409a-c3ae-981d1f2d6a4c.jpg" width="400"/>
+       <div class="p-4">
+        <h3 class="text-lg font-semibold mb-1">Attack on Titan</h3>
+        <p class="text-gray-400 text-sm mb-2">Action, Drama, Fantasy</p>
+        <a class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm" href="#">Regarder VF</a>
+       </div>
+      </article>
+      <article class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-indigo-500 transition">
+       <img alt="Poster of One Piece anime dubbed in French with pirate crew sailing on ship" class="w-full h-48 object-cover" height="225" src="https://storage.googleapis.com/a1aa/image/73b353a8-aa42-4703-2cac-285288953bea.jpg" width="400"/>
+       <div class="p-4">
+        <h3 class="text-lg font-semibold mb-1">One Piece</h3>
+        <p class="text-gray-400 text-sm mb-2">Adventure, Comedy, Fantasy</p>
+        <a class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm" href="#">Regarder VF</a>
+       </div>
+      </article>
+      <article class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-indigo-500 transition">
+       <img alt="Poster of My Hero Academia anime dubbed in French with superheroes in action poses" class="w-full h-48 object-cover" height="225" src="https://storage.googleapis.com/a1aa/image/0309fdc9-60a2-4ff8-1602-9199d118a887.jpg" width="400"/>
+       <div class="p-4">
+        <h3 class="text-lg font-semibold mb-1">My Hero Academia</h3>
+        <p class="text-gray-400 text-sm mb-2">Action, Superhero, School</p>
+        <a class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm" href="#">Regarder VF</a>
+       </div>
+      </article>
+     </div>
+    </section>
+   </section>
+   <!-- ADMIN VIEW -->
+   <section id="view-admin" class="hidden max-w-4xl mx-auto">
+    <h1 class="text-4xl font-extrabold mb-8 text-center text-indigo-400">Espace Administrateur</h1>
+    <nav class="flex justify-center space-x-6 mb-8 text-gray-300">
+     <button class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 transition font-semibold" data-admin-tab="dashboard" type="button">Dashboard</button>
+     <button class="px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 transition font-semibold" data-admin-tab="manage" type="button">Gérer Animes</button>
+     <button class="px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 transition font-semibold" data-admin-tab="upload" type="button">Upload Vidéo</button>
+     <button class="px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 transition font-semibold" data-admin-tab="translation" type="button">Traduction AI</button>
+    </nav>
+    <div id="admin-dashboard" class="admin-tab-content">
+     <div class="bg-gray-800 p-6 rounded-lg shadow-lg text-center text-gray-300">
+      <h2 class="text-2xl font-bold mb-4 text-indigo-400">Statistiques</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-lg">
+       <div class="bg-gray-700 rounded p-4">
+        <p class="font-semibold">Animes en VO</p>
+        <p>120</p>
+       </div>
+       <div class="bg-gray-700 rounded p-4">
+        <p class="font-semibold">Animes en VF</p>
+        <p>95</p>
+       </div>
+       <div class="bg-gray-700 rounded p-4">
+        <p class="font-semibold">Vidéos Uploadées</p>
+        <p>45</p>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div id="admin-manage" class="admin-tab-content hidden">
+     <h2 class="text-2xl font-bold mb-6 border-b border-indigo-600 pb-2 text-indigo-400">Liste des Animes</h2>
+     <div class="overflow-x-auto rounded-lg shadow-lg bg-gray-800">
+      <table class="min-w-full text-left text-gray-300">
+       <thead class="bg-gray-700">
+        <tr>
+         <th class="px-4 py-3">Titre</th>
+         <th class="px-4 py-3">Version</th>
+         <th class="px-4 py-3">Genre</th>
+         <th class="px-4 py-3">Actions</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
+         <td class="px-4 py-3">Naruto Shippuden</td>
+         <td class="px-4 py-3">VO</td>
+         <td class="px-4 py-3">Action, Ninja</td>
+         <td class="px-4 py-3 space-x-2">
+          <button class="text-yellow-400 hover:text-yellow-300" type="button" title="Modifier"><i class="fas fa-edit"></i></button>
+          <button class="text-red-500 hover:text-red-400" type="button" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
+         </td>
+        </tr>
+        <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
+         <td class="px-4 py-3">Attack on Titan</td>
+         <td class="px-4 py-3">VF</td>
+         <td class="px-4 py-3">Action, Drame</td>
+         <td class="px-4 py-3 space-x-2">
+          <button class="text-yellow-400 hover:text-yellow-300" type="button" title="Modifier"><i class="fas fa-edit"></i></button>
+          <button class="text-red-500 hover:text-red-400" type="button" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
+         </td>
+        </tr>
+        <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
+         <td class="px-4 py-3">One Piece</td>
+         <td class="px-4 py-3">VO</td>
+         <td class="px-4 py-3">Aventure, Comédie</td>
+         <td class="px-4 py-3 space-x-2">
+          <button class="text-yellow-400 hover:text-yellow-300" type="button" title="Modifier"><i class="fas fa-edit"></i></button>
+          <button class="text-red-500 hover:text-red-400" type="button" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
+         </td>
+        </tr>
+        <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
+         <td class="px-4 py-3">My Hero Academia</td>
+         <td class="px-4 py-3">VF</td>
+         <td class="px-4 py-3">Action, Superhero</td>
+         <td class="px-4 py-3 space-x-2">
+          <button class="text-yellow-400 hover:text-yellow-300" type="button" title="Modifier"><i class="fas fa-edit"></i></button>
+          <button class="text-red-500 hover:text-red-400" type="button" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
+         </td>
+        </tr>
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div id="admin-upload" class="admin-tab-content hidden">
+     <h2 class="text-2xl font-bold mb-6 border-b border-indigo-600 pb-2 text-indigo-400">Upload de Vidéo Anime</h2>
+     <section class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-xl mx-auto">
+      <form id="uploadFormAdmin" class="space-y-6" enctype="multipart/form-data" method="post" action="#">
+       <div>
+        <label class="block mb-2 font-semibold" for="animeTitleAdmin">Titre de l'anime</label>
+        <input class="w-full rounded-md bg-gray-700 border border-gray-600 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="animeTitleAdmin" name="animeTitleAdmin" placeholder="Ex: Naruto Shippuden" required="" type="text"/>
+       </div>
+       <div>
+        <label class="block mb-2 font-semibold" for="versionAdmin">Version</label>
+        <select class="w-full rounded-md bg-gray-700 border border-gray-600 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="versionAdmin" name="versionAdmin" required="">
+         <option disabled="" selected="" value="">Sélectionnez la version</option>
+         <option value="vo">Version Originale (VO)</option>
+         <option value="vf">Version Française (VF)</option>
+        </select>
+       </div>
+       <div>
+        <label class="block mb-2 font-semibold" for="genreAdmin">Genre</label>
+        <select class="w-full rounded-md bg-gray-700 border border-gray-600 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="genreAdmin" name="genreAdmin" required="">
+         <option disabled="" selected="" value="">Sélectionnez un genre</option>
+         <option value="action">Action</option>
+         <option value="aventure">Aventure</option>
+         <option value="comédie">Comédie</option>
+         <option value="drame">Drame</option>
+         <option value="fantasy">Fantasy</option>
+         <option value="ninja">Ninja</option>
+         <option value="superhero">Superhero</option>
+         <option value="school">School</option>
+        </select>
+       </div>
+       <div>
+        <label class="block mb-2 font-semibold" for="videoFileAdmin">Fichier Vidéo</label>
+        <input accept="video/*" class="w-full rounded-md bg-gray-700 border border-gray-600 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="videoFileAdmin" name="videoFileAdmin" required="" type="file"/>
+       </div>
+       <div>
+        <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-md transition" type="submit">Upload Vidéo</button>
+       </div>
+      </form>
+      <div class="mt-6 text-center text-green-400 font-semibold hidden" id="successMessageAdmin">Vidéo uploadée avec succès !</div>
+     </section>
+    </div>
+    <div id="admin-translation" class="admin-tab-content hidden max-w-xl mx-auto">
+     <h2 class="text-2xl font-bold mb-6 border-b border-indigo-600 pb-2 text-indigo-400">Traduction AI des Voix en Français</h2>
+     <section class="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <form id="translationForm" class="space-y-6" enctype="multipart/form-data" method="post" action="#">
+       <div>
+        <label class="block mb-2 font-semibold" for="videoToTranslate">Sélectionnez une vidéo à traduire</label>
+        <input accept="video/*" class="w-full rounded-md bg-gray-700 border border-gray-600 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="videoToTranslate" name="videoToTranslate" required="" type="file"/>
+       </div>
+       <div>
+        <label class="block mb-2 font-semibold" for="targetLanguage">Langue cible</label>
+        <select class="w-full rounded-md bg-gray-700 border border-gray-600 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="targetLanguage" name="targetLanguage" required="">
+         <option value="fr" selected>Français</option>
+        </select>
+       </div>
+       <div>
+        <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-md transition" type="submit">Lancer la Traduction AI</button>
+       </div>
+      </form>
+      <div class="mt-6 text-center text-green-400 font-semibold hidden" id="translationSuccessMessage">Traduction terminée avec succès !</div>
+      <div class="mt-6 text-center text-red-500 font-semibold hidden" id="translationErrorMessage">Erreur lors de la traduction. Veuillez réessayer.</div>
+     </section>
+    </div>
+   </section>
+  </main>
+  <footer class="bg-gray-800 text-gray-400 py-6 mt-12">
+   <div class="container mx-auto px-4 text-center text-sm">© 2024 AnimeStream. Tous droits réservés.</div>
+  </footer>
+  <script>
+   // Mobile menu toggle
+   const btn = document.getElementById('mobile-menu-button');
+   const menu = document.getElementById('mobile-menu');
+   btn.addEventListener('click', () => {
+     menu.classList.toggle('hidden');
+   });
+
+   // Elements
+   const navPublic = document.getElementById('nav-public');
+   const navAdmin = document.getElementById('nav-admin');
+   const mobileMenuPublic = document.getElementById('mobile-menu-public');
+   const mobileMenuAdmin = document.getElementById('mobile-menu-admin');
+
+   const btnSwitchToLogin = document.getElementById('btn-switch-to-login');
+   const btnMobileSwitchToLogin = document.getElementById('btn-mobile-switch-to-login');
+   const btnLogout = document.getElementById('btn-logout');
+   const btnMobileLogout = document.getElementById('btn-mobile-logout');
+
+   const viewPublic = document.getElementById('view-public');
+   const viewAdmin = document.getElementById('view-admin');
+   const viewLogin = document.getElementById('view-login');
+
+   // Admin tabs
+   const adminTabs = document.querySelectorAll('[data-admin-tab]');
+   const adminTabContents = document.querySelectorAll('.admin-tab-content');
+
+   // Password for admin access
+   const ADMIN_PASSWORD = "Jeanalberto12";
+
+   // Show/hide views
+   function showLoginView() {
+     viewLogin.classList.remove('hidden');
+     viewPublic.classList.add('hidden');
+     viewAdmin.classList.add('hidden');
+     navPublic.classList.add('hidden');
+     navAdmin.classList.add('hidden');
+     mobileMenuPublic.classList.add('hidden');
+     mobileMenuAdmin.classList.add('hidden');
+     if (!menu.classList.contains('hidden')) menu.classList.add('hidden');
+   }
+
+   function showAdminView() {
+     viewLogin.classList.add('hidden');
+     viewPublic.classList.add('hidden');
+     viewAdmin.classList.remove('hidden');
+     navPublic.classList.add('hidden');
+     navAdmin.classList.remove('hidden');
+     mobileMenuPublic.classList.add('hidden');
+     mobileMenuAdmin.classList.remove('hidden');
+     showAdminTab('dashboard');
+     if (!menu.classList.contains('hidden')) menu.classList.add('hidden');
+   }
+
+   function showPublicView() {
+     viewLogin.classList.add('hidden');
+     viewPublic.classList.remove('hidden');
+     viewAdmin.classList.add('hidden');
+     navPublic.classList.remove('hidden');
+     navAdmin.classList.add('hidden');
+     mobileMenuPublic.classList.remove('hidden');
+     mobileMenuAdmin.classList.add('hidden');
+     if (!menu.classList.contains('hidden')) menu.classList.add('hidden');
+   }
+
+   // Admin tabs
+   function showAdminTab(tabName) {
+     adminTabs.forEach((tab) => {
+       if (tab.dataset.adminTab === tabName) {
+         tab.classList.add('bg-indigo-600');
+         tab.classList.remove('bg-gray-700');
+       } else {
+         tab.classList.remove('bg-indigo-600');
+         tab.classList.add('bg-gray-700');
+       }
+     });
+     adminTabContents.forEach((content) => {
+       if (content.id === 'admin-' + tabName) {
+         content.classList.remove('hidden');
+       } else {
+         content.classList.add('hidden');
+       }
+     });
+   }
+
+   adminTabs.forEach((tab) => {
+     tab.addEventListener('click', () => {
+       showAdminTab(tab.dataset.adminTab);
+     });
+   });
+
+   // Login form
+   const loginForm = document.getElementById('loginForm');
+   const loginError = document.getElementById('loginError');
+
+   loginForm.addEventListener('submit', (e) => {
+     e.preventDefault();
+     const passwordInput = document.getElementById('adminPassword').value;
+     if (passwordInput === ADMIN_PASSWORD) {
+       loginError.classList.add('hidden');
+       loginForm.reset();
+       localStorage.setItem('isAdminAuthenticated', 'true');
+       showAdminView();
+     } else {
+       loginError.classList.remove('hidden');
+     }
+   });
+
+   // Logout buttons
+   btnLogout.addEventListener('click', (e) => {
+     e.preventDefault();
+     localStorage.removeItem('isAdminAuthenticated');
+     showPublicView();
+   });
+   btnMobileLogout.addEventListener('click', (e) => {
+     e.preventDefault();
+     localStorage.removeItem('isAdminAuthenticated');
+     showPublicView();
+   });
+
+   // Switch to login view buttons
+   btnSwitchToLogin.addEventListener('click', (e) => {
+     e.preventDefault();
+     showLoginView();
+   });
+   btnMobileSwitchToLogin.addEventListener('click', (e) => {
+     e.preventDefault();
+     showLoginView();
+   });
+
+   // Upload form admin (simulate)
+   const formAdmin = document.getElementById('uploadFormAdmin');
+   const successMessageAdmin = document.getElementById('successMessageAdmin');
+
+   if(formAdmin){
+     formAdmin.addEventListener('submit', (e) => {
+       e.preventDefault();
+       successMessageAdmin.classList.remove('hidden');
+       formAdmin.reset();
+       setTimeout(() => {
+         successMessageAdmin.classList.add('hidden');
+       }, 5000);
+     });
+   }
+
+   // AI Translation form
+   const translationForm = document.getElementById('translationForm');
+   const translationSuccessMessage = document.getElementById('translationSuccessMessage');
+   const translationErrorMessage = document.getElementById('translationErrorMessage');
+
+   translationForm.addEventListener('submit', (e) => {
+     e.preventDefault();
+
+     translationSuccessMessage.classList.add('hidden');
+     translationErrorMessage.classList.add('hidden');
+
+     const videoFile = document.getElementById('videoToTranslate').files[0];
+     const targetLang = document.getElementById('targetLanguage').value;
+
+     if (!videoFile) {
+       translationErrorMessage.textContent = "Veuillez sélectionner un fichier vidéo.";
+       translationErrorMessage.classList.remove('hidden');
+       return;
+     }
+
+     translationSuccessMessage.textContent = "Traduction en cours, veuillez patienter...";
+     translationSuccessMessage.classList.remove('hidden');
+
+     setTimeout(() => {
+       translationSuccessMessage.classList.add('hidden');
+       if (Math.random() < 0.85) {
+         translationSuccessMessage.textContent = "Traduction terminée avec succès !";
+         translationSuccessMessage.classList.remove('hidden');
+       } else {
+         translationErrorMessage.textContent = "Erreur lors de la traduction. Veuillez réessayer.";
+         translationErrorMessage.classList.remove('hidden');
+       }
+     }, 4000);
+   });
+
+   // On page load, check if admin authenticated
+   window.addEventListener('DOMContentLoaded', () => {
+     if(localStorage.getItem('isAdminAuthenticated') === 'true'){
+       showAdminView();
+     } else {
+       showPublicView();
+     }
+   });
+  </script>
+ </body>
+</html>
